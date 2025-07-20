@@ -10,6 +10,9 @@ Queremos dar las gracias tanto al creador del mod BBBalatro que nos sirvió como
 Si encuentras un error, puedes reportarlo directamente abriendo un [Issue en GitHub](https://github.com/Franciscoarr/Espalatro/issues)
 Describe qué ocurrió y cómo reproducirlo si es posible
 
+# Requisitos
+Se debe tener [Steamodded](https://github.com/Steamodded/smods/wiki) para poder usar Espalatro, extrayendo el .zip en %AppData%\Roaming\Balatro\Mods
+
 ¡Gracias por descargar nuestro mod!
 
 
