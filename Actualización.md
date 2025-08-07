@@ -2,3 +2,5 @@
 -Se rescribió el código de Balatro Motos para que no tenga errores
 -Ahora Balatro Recio suma x0.05 de mult
 -Jimbiesta tenía un error con el plano que ya está solucionado
+-Jimbo Sanchez solo quitaba dinero en la primera ronda y se le ha añadido un nuevo sonido
+-Algunos comodines ahora tiene compatibilidad con el Plano
