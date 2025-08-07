@@ -33,65 +33,6 @@ local jokers = {
         soul_pos = nil,
 
         calculate = function(self, context)
-
-            --[[if not context or not context.individual or not context.cardarea or context.cardarea ~= G.play then
-                return
-            end
-            
-            if not context.other_card or not context.other_card.get_id or context.other_card:get_id() ~= 12 then
-                return
-            end
-            
-            if not G or not G.consumeables or not G.GAME then
-                return
-            end
-
-            local consumeable_count = #G.consumeables.cards
-            local buffer = G.GAME.consumeable_buffer or 0
-            local limit = G.consumeables.config.card_limit
-
-            if consumeable_count + buffer >= limit then
-                return
-            end
-
-            if pseudorandom('balatromotos') < (1/self.ability.extra.chance) then
-                G.GAME.consumeable_buffer = buffer + 1
-                
-                G.E_MANAGER:add_event(Event({
-                    trigger = 'before',
-                    func = (function()
-
-                        local tarot_cards = {
-                            'c_fool', 'c_magician', 'c_highpriestess', 'c_empress', 'c_emperor',
-                            'c_heirophant', 'c_lovers', 'c_chariot', 'c_justice', 'c_hermit',
-                            'c_wheeloffortune', 'c_strength', 'c_hangedman', 'c_death', 'c_temperance',
-                            'c_devil', 'c_tower', 'c_star', 'c_moon', 'c_sun', 'c_judgement', 'c_world'
-                        }
-                        
-                        local selected = pseudorandom_element(tarot_cards, pseudoseed('balatromotos'))
-                        local card = create_card('Tarot', G.consumeables, nil, nil, nil, nil, selected)
-                        
-                        if card and G.consumeables then
-                            card:add_to_deck()
-                            G.consumeables:emplace(card)
-
-                            if card_eval_status_text then
-                                card_eval_status_text(self, 'extra', nil, nil, nil, {
-                                    message = "¡Que entre la china!",
-                                    colour = G.C.BLACK,
-                                    sound = "balatromotos"
-                                })
-                            end
-
-                        end
-    
-                        G.GAME.consumeable_buffer = 0
-                        return true
-                    end)
-                }))
-            end
-        end,]]
-
             if context.individual then
                 if context.cardarea == G.play then
                     if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
@@ -551,7 +492,7 @@ local jokers = {
         pos = { x = 0, y = 0 },
         rarity = 2,
         cost = 6,
-        blueprint_compat = false,
+        blueprint_compat = true,
         eternal_compat = true,
         unlocked = true,
         discovered = true,
@@ -634,7 +575,8 @@ local jokers = {
             extra = {
                 mult_per_round = 5,
                 money_lost_per_round = 10,
-                accumulated_mult = 0
+                accumulated_mult = 0,
+                last_round_applied = -1
             }
         },
         pos = { x = 0, y = 0 },
@@ -649,21 +591,17 @@ local jokers = {
 
         calculate = function(self, context)
             local extra = self.ability.extra
-
-            G.GAME.round_count = G.GAME.round_count or 0
-            extra.last_round_applied = extra.last_round_applied or -1
-
-            if context.end_of_round and not context.blueprint and extra.last_round_applied < G.GAME.round_count then
-                if (G.GAME.dollars or 0) >= extra.money_lost_per_round then
+            if context.end_of_round then
+                if extra.last_round_applied ~= G.GAME.round and G.GAME.dollars >= extra.money_lost_per_round then
                     G.GAME.dollars = G.GAME.dollars - extra.money_lost_per_round
                     extra.accumulated_mult = extra.accumulated_mult + extra.mult_per_round
-                    extra.last_round_applied = G.GAME.round_count
+                    extra.last_round_applied = G.GAME.round
 
                     card_eval_status_text(self, 'extra', nil, nil, nil, {
                         message = "-$" .. extra.money_lost_per_round .. " | +" .. extra.mult_per_round .. " mult",
                         colour = G.C.RED,
                         sound = "jimbosanchez1"
-                    })
+                    })        
                 end
             end
 
@@ -671,6 +609,7 @@ local jokers = {
                 if extra.accumulated_mult > 0 then
                     return {
                         mult = extra.accumulated_mult,
+                        message = "Son las 5, no he comido",
                         sound = "jimbosanchez2",
                         card = self
                     }
