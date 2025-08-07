@@ -1,0 +1,4 @@
+----1.0.1----
+-Se rescribió el código de Balatro Motos para que no tenga errores
+-Ahora Balatro Recio suma x0.05 de mult
+-Jimbiesta tenía un error con el plano que ya está solucionado
