@@ -34,7 +34,7 @@ local jokers = {
 
         calculate = function(self, context)
 
-            if not context or not context.individual or not context.cardarea or context.cardarea ~= G.play then
+            --[[if not context or not context.individual or not context.cardarea or context.cardarea ~= G.play then
                 return
             end
             
@@ -89,6 +89,36 @@ local jokers = {
                         return true
                     end)
                 }))
+            end
+        end,]]
+
+            if context.individual then
+                if context.cardarea == G.play then
+                    if #G.consumeables.cards + G.GAME.consumeable_buffer < G.consumeables.config.card_limit then
+                        if (context.other_card:get_id() == 12) and (pseudorandom('balatromotos') < (1/self.ability.extra.chance)) then
+                            G.GAME.consumeable_buffer = G.GAME.consumeable_buffer + 1
+                            return {
+                                func = function()
+                                    G.E_MANAGER:add_event(Event({
+                                        trigger = 'before',
+                                        delay = 0.0,
+                                        func = function()
+                                            local card = create_card('Tarot',G.consumeables, nil, nil, nil, nil, nil, 'balatromotos')
+                                            card:add_to_deck()
+                                            G.consumeables:emplace(card)
+                                            G.GAME.consumeable_buffer = 0
+                                            return true
+                                        end
+                                    }))
+                                end,
+                                sound = "balatromotos",
+                                message = "¡Que entre la china!",
+                                colour = G.Black,
+                                card = self
+                            }
+                        end
+                    end
+                end
             end
         end,
 
@@ -731,13 +761,12 @@ local jokers = {
     jimbiesta = {
         name = "Jimbiesta",
         text = {
-            "{C:chips}+500{} fichas en la última mano",
-            "{C:attetion}última mano{} de la ronda"
+            "{C:chips}+500{} fichas en la",
+            "{C:attention}última mano{} de la ronda"
         },
         config = {
             extra = {
-                chips = 500,
-                curr_chips = 0
+                chips = 500
             }
         },
         pos = { x = 0, y = 0 },
@@ -752,18 +781,14 @@ local jokers = {
         soul_pos = nil,
 
         calculate = function(self, context)
-            if context.before then
-                if G.GAME.current_round.hands_left == 0 then
-                    self.ability.extra.curr_chips = self.ability.extra.curr_chips + self.ability.extra.chips
+            -- Aplica los chips si estás en la última mano de la ronda
+            if context.joker_main and context.cardarea == G.jokers then
+                if G.GAME.current_round.hands_left < 1 then
+                    play_sound('jimbiesta')
+                    return {
+                        chips = self.ability.extra.chips
+                    }
                 end
-            end
-            if context.joker_main and context.cardarea == G.jokers and self.ability.extra.curr_chips == 500 then
-                local chips_to_add = self.ability.extra.curr_chips
-                self.ability.extra.curr_chips = 0
-                play_sound('jimbiesta')
-                return {
-                    chips = chips_to_add
-                }
             end
         end,
 
@@ -898,7 +923,7 @@ local jokers = {
         pos = { x = 0, y = 0 },
         rarity = 1,
         cost = 5,
-        blueprint_compat = true,
+        blueprint_compat = false,
         eternal_compat = true,
         unlocked = true,
         discovered = true,
@@ -1011,7 +1036,7 @@ local jokers = {
 	balatrorecio = {
         name = "Balatro Recio",
         text = {
-            "Cada carta en juego que no sea",
+            "Cada carta en tu baraja que no sea",
             "de {C:attetion}acero{}, {C:attetion}oro{}, {C:attetion}piedra{} o {C:attetion}base{}",
             "añade {X:red,C:white}X#1#{} al multiplicador",
             "{C:inactive}(Actual: multi {X:red,C:white}X#2#{})"
@@ -1019,7 +1044,7 @@ local jokers = {
         config = {
             extra = {
                 contador_cartas = 0,
-                multiplicador = 0.02,
+                multiplicador = 0.05,
                 current_x_mult = 1
             }
         },
@@ -1037,7 +1062,7 @@ local jokers = {
         calculate = function(self, context)
             self.config.extra = self.config.extra or {
                 contador_cartas = 0,
-                multiplicador = 0.02,
+                multiplicador = 0.05,
                 current_x_mult = 1
             }
             
@@ -1074,7 +1099,7 @@ local jokers = {
 
         loc_def = function(self)
             local extra = self.config.extra or {
-                multiplicador = 0.02,
+                multiplicador = 0.05,
                 current_x_mult = 1
             }
             return {
