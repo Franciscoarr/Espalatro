@@ -339,7 +339,7 @@ local jokers = {
         text = {
             "En tu {C:attention}último descarte{}",
             "destruye todas las cartas",
-            "de {C:spades}espadas{} y {C:clubs}treboles{}",
+            "de {C:spades}picas{} y {C:clubs}treboles{}",
             "que {C:attention}selecciones{} para descartar"
         },
         config = {},
@@ -576,7 +576,7 @@ local jokers = {
                 mult_per_round = 5,
                 money_lost_per_round = 10,
                 accumulated_mult = 0,
-                last_round_applied = -1
+                already_triggered_this_round = false
             }
         },
         pos = { x = 0, y = 0 },
@@ -591,11 +591,16 @@ local jokers = {
 
         calculate = function(self, context)
             local extra = self.ability.extra
+
+            if context.setting_blind and not context.blueprint then
+                extra.already_triggered_this_round = false
+            end
+
             if context.end_of_round then
-                if extra.last_round_applied ~= G.GAME.round and G.GAME.dollars >= extra.money_lost_per_round then
+                if not extra.already_triggered_this_round and G.GAME.dollars >= extra.money_lost_per_round then
                     G.GAME.dollars = G.GAME.dollars - extra.money_lost_per_round
                     extra.accumulated_mult = extra.accumulated_mult + extra.mult_per_round
-                    extra.last_round_applied = G.GAME.round
+                    extra.already_triggered_this_round = true
 
                     card_eval_status_text(self, 'extra', nil, nil, nil, {
                         message = "-$" .. extra.money_lost_per_round .. " | +" .. extra.mult_per_round .. " mult",
@@ -720,7 +725,6 @@ local jokers = {
         soul_pos = nil,
 
         calculate = function(self, context)
-            -- Aplica los chips si estás en la última mano de la ronda
             if context.joker_main and context.cardarea == G.jokers then
                 if G.GAME.current_round.hands_left < 1 then
                     play_sound('jimbiesta')
@@ -1216,13 +1220,12 @@ local jokers = {
     cajarural = {
         name = "Gorra de Caja Rural",
         text = {
-            "Al ser {C:attention}vendido{}, duplica el",
-            "valor de venta de todos los",
-            "{C:attention}otros comodines{} en tu posesión"
+            "Al ser {C:attention}vendido{}, el precio de {C:attention}tus comodínes{}",
+            "aumenta un {C:attention}x2 + coste base del comodín{}"
         },
         config = {
             extra = {
-                duplicador = 2
+                exponencial = 1
             }
         },
         pos = { x = 0, y = 0 },
@@ -1239,9 +1242,11 @@ local jokers = {
             if context.selling_self then
                 for k, v in ipairs(G.jokers.cards) do
                     if v ~= self and v.set_cost then
-                        v.sell_cost = v.sell_cost * 2
+                        v.ability.extra_value = v.sell_cost * (math.pow(2, self.ability.extra.exponencial))
+                        v:set_cost()
                     end
                 end
+                self.ability.extra.exponencial = self.ability.extra.exponencial + 1
             end
         end,
 
