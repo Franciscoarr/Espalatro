@@ -14,7 +14,7 @@ Se debe tener [Steamodded](https://github.com/Steamodded/smods/wiki) para poder 
 
 # Donaciones
 
-Si quieres apoyar el proyecto, puedes hacer una [donación]paypal.me/PepsiPaco
+Si quieres apoyar el proyecto, puedes hacer una [donación](https://www.paypal.com/paypalme/PepsiPaco)
 
 ¡Gracias por descargar nuestro mod!
 
