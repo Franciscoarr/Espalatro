@@ -12,6 +12,10 @@ Si encuentras un error, puedes reportarlo directamente abriendo un [Issue en Git
 # Requisitos
 Se debe tener [Steamodded](https://github.com/Steamodded/smods/wiki) para poder usar Espalatro, extrayendo el .zip en %AppData%\Roaming\Balatro\Mods
 
+# Donaciones
+
+Si quieres apoyar el proyecto, puedes hacer una [donación]paypal.me/PepsiPaco
+
 ¡Gracias por descargar nuestro mod!
 
 
